@@ -1,7 +1,7 @@
 {
   "name": "cullylarson/ssh-copy",
   "type": "library",
-  "description": "A library for performing remote copies. Copy to/from local, and even between two remote machines.",
+  "description": "A library for performing remote copies. Copy to/from local, to/from remote, and even between two remote machines.",
   "keywords": ["ssh", "copy", "remote"],
   "homepage": "https://github.com/cullylarson/ssh-copy",
   "license": "MIT",
