@@ -12,7 +12,7 @@ php composer.phar require cullylarson/ssh-copy
 
 ## Construct
 
-You'll do everything with an isntance of `Cully\Ssh\Copier`. Its constructor takes three
+You'll do everything with an instance of `Cully\Ssh\Copier`. Its constructor takes three
 parameters:
 
 1. **$sshSource** _(resource|null)_ _(optional, default:null)_ An SSH connection resource.
