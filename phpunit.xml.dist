@@ -1,0 +1,44 @@
+<phpunit bootstrap="./tests/phpunit-bootstrap.php">
+    <php>
+        <!--
+            Currently only supports connections using rsa auth.
+
+            If you get an auth error when running the tests, you might need
+            to execute this on the command-line:  eval `ssh-agent -s` && ssh-add
+        -->
+        <env name="SOURCE_SSH_USER" value="" />
+        <env name="SOURCE_SSH_HOST" value="localhost" />
+        <env name="SOURCE_SSH_PORT" value="22" />
+        <!-- no trailing slash -->
+        <env name="SOURCE_TMP" value="/tmp" />
+
+        <env name="DEST_SSH_USER" value="" />
+        <env name="DEST_SSH_HOST" value="localhost" />
+        <env name="DEST_SSH_PORT" value="22" />
+        <!-- no trailing slash -->
+        <env name="DEST_TMP" value="/tmp" />
+
+        <!-- no trailing slash -->
+        <env name="LOCAL_TMP" value="/tmp" />
+    </php>
+
+    <testsuite name="SSH Copy Test Suite">
+        <directory>./tests/</directory>
+    </testsuite>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/Cully/Ssh/</directory>
+        </whitelist>
+        <blacklist>
+            <directory>test/tmp</directory>
+        </blacklist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./tests/log/report" charset="UTF-8"
+             yui="true" highlight="true"
+             lowUpperBound="50" highLowerBound="80"/>
+        <log type="testdox-html" target="./tests/log/testdox.html" />
+    </logging>
+</phpunit>
