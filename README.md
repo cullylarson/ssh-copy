@@ -12,7 +12,8 @@ php composer.phar require cullylarson/ssh-copy
 
 ## Construct
 
-The constructor takes three parameters:
+You'll do everything with an isntance of `Cully\Ssh\Copier`. Its constructor takes three
+parameters:
 
 1. **$sshSource** _(resource)_ _(optional, default:null)_ An SSH connection resource.
 If null, will assume the source is the local machine. If non-null, will assume the
@@ -29,7 +30,7 @@ the files locally.
 
 ## Copy
 
-The `copy` function takes two arguments:
+The `Cully\Ssh\Copier::copy` function takes two arguments:
 
 1. **$sourceFilepath** _(string|array)_ _(required)_ The path to the file that you want to copy
 from the source machine.  Instead of passing a single paths, you can pass an array of paths to
