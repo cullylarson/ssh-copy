@@ -42,6 +42,9 @@ want the file copied.  Instead of passing a single paths, you can pass an array 
 files you want to copy.  If an array is provided, the **$sourceFilepath** parameter must also
 be an array of the same length.
 
+NOTE: Currently the `copy` function DOES NOT create parent folders.  The folders must already exist.
+Maybe something for a future release.
+
 ## Examples
 
 NOTE:  If you're using RSA for the examples below, and you got an auth error,
