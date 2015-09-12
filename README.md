@@ -28,7 +28,7 @@ the copy will first transfer the files to from the remote source, to the local m
 and then to the remote destination.  So, you need to provide a temporary folder to house
 the files locally.
 
-## Copy
+## `copy`
 
 The `Cully\Ssh\Copier::copy` function takes two arguments:
 
@@ -42,17 +42,40 @@ want the file copied.  Instead of passing a single paths, you can pass an array 
 files you want to copy.  If an array is provided, the **$sourceFilepath** parameter must also
 be an array of the same length.
 
+**Returns:** _boolean_ True on success, false on fail.
+
 NOTE: Currently the `copy` function DOES NOT create parent folders.  The folders must already exist.
 Maybe something for a future release.
 
+## `copyAssoc`
+
+The `Cully\Ssh\Copier::copyAssoc` function is similar to `copy`, except it takes one argument:
+
+1. **$sourceAndDest** _(array)_ _(required)_ An associative array wherekKeys are source file paths,
+and values are destination file paths.
+
+**Returns:** _boolean_ True on success, false on fail.
+
 ## Examples
 
-NOTE:  If you're using RSA for the examples below, and you got an auth error,
+### Setup SSH Connections
+
+```
+<?php
+
+$sourceSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa'));
+ssh2_auth_agent($sourceSsh, "my_username");
+
+$destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa'));
+ssh2_auth_agent($destSsh, "my_username");
+```
+
+NOTE:  If you're using RSA for the examples below, and you get an auth error,
 you might need to run this command:
        
     $ eval `ssh-agent -s` && ssh-add
 
-### Local to Local Copy
+### Copy / Local to Local
 
 ```
 <?php
@@ -61,47 +84,44 @@ $copier = new Cully\Ssh\Copier();
 $copier->copy("path/to/source", "path/to/dest");
 ```
     
-### Local to Remote Copy
+### Copy / Local to Remote
 
 ```
 <?php
-
-$destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
-ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
 $copier = new Cully\Ssh\Copier(null, $destSsh);
 $copier->copy("path/to/source/on/local", "path/to/dest/on/remote");
 ```
     
-### Remote to Remote Copy
+### Copy / Remote to Remote
 
 ```
 <?php
-
-$sourceSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
-ssh2_auth_agent($sourceSsh, "my_username") or die("Couldn't authenticate.");
-
-$destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
-ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
 $copier = new Cully\Ssh\Copier($sourceSsh, $destSsh, "/local/tmp/folder");
 $copier->copy("path/on/remote/source", "path/on/remote/dest");
 ```
     
-### Remote to Remote Copy of Multiple Files
+### Copy / Remote to Remote with Multiple Files
 
 ```
 <?php
-
-$sourceSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
-ssh2_auth_agent($sourceSsh, "my_username") or die("Couldn't authenticate.");
-
-$destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
-ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
 $copier = new Cully\Ssh\Copier($sourceSsh, $destSsh, "/local/tmp/folder");
 $copier->copy(
     [ "path/on/remote/source/file1", "path/on/remote/source/file2" ],
     [ "path/on/remote/dest/file1", "path/on/remote/dest/file2" ]
 );
+```
+
+### Copy / Remote to Remote with Multiple Files using `copyAssoc`
+
+```
+<?php
+
+$copier = new Cully\Ssh\Copier($sourceSsh, $destSsh, "/local/tmp/folder");
+$copier->copyAssoc([
+    "path/on/remote/source/file1" => "path/on/remote/dest/file1",
+    "path/on/remote/source/file2" => "path/on/remote/dest/file2"
+]);
 ```

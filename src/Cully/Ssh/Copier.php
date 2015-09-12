@@ -103,7 +103,7 @@ class Copier {
     }
 
     /**
-     * Similar to
+     * Similar to copy, except it takes on parameter, an associative array.
      *
      * @param string|array    $sourceAndDest     Keys are source file paths, values are destination file paths
      *
