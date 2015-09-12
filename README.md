@@ -15,15 +15,15 @@ php composer.phar require cullylarson/ssh-copy
 You'll do everything with an isntance of `Cully\Ssh\Copier`. Its constructor takes three
 parameters:
 
-1. **$sshSource** _(resource)_ _(optional, default:null)_ An SSH connection resource.
-If null, will assume the source is the local machine. If non-null, will assume the
+1. **$sshSource** _(resource|null)_ _(optional, default:null)_ An SSH connection resource.
+If null, will assume the source is the local machine. If its a resource, will assume the
 source is a remote machine.
 
-1. **$sshDestination** _(resource)_ _(optional, default:null)_ An SSH connection resource.
-If null, will assume the destination is the local machine. If non-null, will assume the
+1. **$sshDestination** _(resource|null)_ _(optional, default:null)_ An SSH connection resource.
+If null, will assume the destination is the local machine. If its a resource, will assume the
 destination is a remote machine.
 
-1. **$localTmp** _(string)_ _(optional, default:null)_ If copying between two remote machines,
+1. **$localTmp** _(string|null)_ _(optional, default:null)_ If copying between two remote machines,
 the copy will first transfer the files to from the remote source, to the local machine,
 and then to the remote destination.  So, you need to provide a temporary folder to house
 the files locally.
