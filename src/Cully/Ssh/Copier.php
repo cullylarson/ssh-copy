@@ -102,6 +102,21 @@ class Copier {
         }
     }
 
+    /**
+     * Similar to
+     *
+     * @param string|array    $sourceAndDest     Keys are source file paths, values are destination file paths
+     *
+     * @return boolean
+     *
+     * @throws \UnexpectedValueException    If {@link copy()} throws it.
+     *
+     * @throws \InvalidArgumentException    If {@link copy()} throws it.
+     */
+    public function copyAssoc(array $sourceAndDest) {
+        return $this->copy(array_keys($sourceAndDest), array_values($sourceAndDest));
+    }
+
     private function copyLocalToLocal($sourcePath, $destPath) {
         return copy($sourcePath, $destPath);
     }

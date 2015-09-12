@@ -317,6 +317,24 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         $this->assertTrue($success);
     }
 
+    public function testRemoteToRemoteAssoc() {
+        $copier = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+        $sourceAndDest = [
+            $this->createRemoteSourceFile("blah.txt")  => $this->getDestPath("blah.txt"),
+            $this->createRemoteSourceFile("blah2.txt") => $this->getDestPath("blah2.txt"),
+        ];
+
+        $success = $copier->copyAssoc($sourceAndDest);
+
+        foreach($sourceAndDest as $sourceFile => $destFile) {
+            $this->assertDestFileExists($destFile);
+            $this->removeRemoteSourceFile($sourceFile);
+            $this->removeRemoteDestFile($destFile);
+        }
+
+        $this->assertTrue($success);
+    }
+
     public function testRemoteToRemoteArrayNoFilenameClash() {
         $copy = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFolder = $this->createRemoteSourceFolder("foo");
