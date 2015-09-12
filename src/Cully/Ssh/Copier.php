@@ -118,15 +118,15 @@ class Copier {
     }
 
     private function copyLocalToLocal($sourcePath, $destPath) {
-        return copy($sourcePath, $destPath);
+        return @copy($sourcePath, $destPath);
     }
 
     private function copyRemoteToLocal($sourcePath, $destPath) {
-        return ssh2_scp_recv($this->sshSource, $sourcePath, $destPath);
+        return @ssh2_scp_recv($this->sshSource, $sourcePath, $destPath);
     }
 
     private function copyLocalToRemote($sourcePath, $destPath) {
-        return ssh2_scp_send($this->sshDestination, $sourcePath, $destPath);
+        return @ssh2_scp_send($this->sshDestination, $sourcePath, $destPath);
     }
 
     private function copyRemoteToRemote($sourcePath, $destPath) {
