@@ -2,7 +2,7 @@
 
 namespace Cully\Ssh;
 
-class Copy {
+class Copier {
     private $sshSource;
     private $sshDestination;
     private $localTmp;

@@ -29,7 +29,7 @@ the files locally.
 
 ## Copy
 
-The copy function takes two arguments:
+The `copy` function takes two arguments:
 
 1. **$sourceFilepath** _(string|array)_ _(required)_ The path to the file that you want to copy
 from the source machine.  Instead of passing a single paths, you can pass an array of paths to
@@ -53,7 +53,7 @@ you might need to run this command:
 ```
 <?php
 
-$copier = new Cully\Ssh\Copy();
+$copier = new Cully\Ssh\Copier();
 $copier->copy("path/to/source", "path/to/dest");
 ```
     
@@ -65,7 +65,7 @@ $copier->copy("path/to/source", "path/to/dest");
 $destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
 ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
-$copier = new Cully\Ssh\Copy(null, $destSsh);
+$copier = new Cully\Ssh\Copier(null, $destSsh);
 $copier->copy("path/to/source/on/local", "path/to/dest/on/remote");
 ```
     
@@ -80,7 +80,7 @@ ssh2_auth_agent($sourceSsh, "my_username") or die("Couldn't authenticate.");
 $destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
 ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
-$copier = new Cully\Ssh\Copy($sourceSsh, $destSsh, "/local/tmp/folder");
+$copier = new Cully\Ssh\Copier($sourceSsh, $destSsh, "/local/tmp/folder");
 $copier->copy("path/on/remote/source", "path/on/remote/dest");
 ```
     
@@ -95,7 +95,7 @@ ssh2_auth_agent($sourceSsh, "my_username") or die("Couldn't authenticate.");
 $destSsh = ssh2_connect("localhost", 22, array('hostkey'=>'ssh-rsa')) or die("Couldn't connect.");
 ssh2_auth_agent($destSsh, "my_username") or die("Couldn't authenticate.");
 
-$copier = new Cully\Ssh\Copy($sourceSsh, $destSsh, "/local/tmp/folder");
+$copier = new Cully\Ssh\Copier($sourceSsh, $destSsh, "/local/tmp/folder");
 $copier->copy(
     [ "path/on/remote/source/file1", "path/on/remote/source/file2" ],
     [ "path/on/remote/dest/file1", "path/on/remote/dest/file2" ]

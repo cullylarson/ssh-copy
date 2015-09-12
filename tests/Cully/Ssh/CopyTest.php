@@ -2,7 +2,7 @@
 
 namespace Test\Cully\Ssh;
 
-use Cully\Ssh\Copy;
+use Cully\Ssh\Copier;
 use Cully\Ssh;
 use Cully\Local;
 
@@ -186,7 +186,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testLocalToLocal() {
-        $copy = new Copy();
+        $copy = new Copier();
         $localFile1 = $this->createLocalFile("blah.txt");
         $localFile2 = $this->getLocalPath("blah2.txt");
 
@@ -201,7 +201,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testLocalToRemote() {
-        $copy = new Copy(null, $this->destSsh);
+        $copy = new Copier(null, $this->destSsh);
         $localFile = $this->createLocalFile("blah.txt");
         $destFile = $this->getDestPath(basename($localFile));
 
@@ -216,7 +216,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoteToLocal() {
-        $copy = new Copy($this->sourceSsh, null);
+        $copy = new Copier($this->sourceSsh, null);
         $sourceFile = $this->createRemoteSourceFile("blah.txt");
         $localFile = $this->getLocalPath(basename($sourceFile));
 
@@ -231,7 +231,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoteToRemote() {
-        $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+        $copy = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFile = $this->createRemoteSourceFile("blah.txt");
         $destFile = $this->getDestPath(basename($sourceFile));
 
@@ -246,7 +246,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testLocalToLocalArray() {
-        $copy = new Copy();
+        $copy = new Copier();
         $localFile1 = [$this->createLocalFile("blah.txt"), $this->createLocalFile("blah2.txt")];
         $localFile2 = [$this->getLocalPath("foo.txt"), $this->getLocalPath("foo2.txt")];
 
@@ -264,7 +264,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testLocalToRemoteArray() {
-        $copy = new Copy(null, $this->destSsh);
+        $copy = new Copier(null, $this->destSsh);
         $localFile = [ $this->createLocalFile("blah.txt"), $this->createLocalFile("blah2.txt") ];
         $destFile = [ $this->getDestPath(basename($localFile[0])), $this->getDestPath(basename($localFile[1])) ];
 
@@ -282,7 +282,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoteToLocalArray() {
-        $copy = new Copy($this->sourceSsh, null);
+        $copy = new Copier($this->sourceSsh, null);
         $sourceFile = [$this->createRemoteSourceFile("blah.txt"), $this->createRemoteSourceFile("blah2.txt")];
         $localFile = [$this->getLocalPath(basename($sourceFile[0])), $this->getLocalPath(basename($sourceFile[1]))];
 
@@ -300,7 +300,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoteToRemoteArray() {
-        $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+        $copy = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFile = [$this->createRemoteSourceFile("blah.txt"), $this->createRemoteSourceFile("blah2.txt")];
         $destFile = [$this->getDestPath(basename($sourceFile[0])), $this->getDestPath(basename($sourceFile[1]))];
 
@@ -318,7 +318,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function testRemoteToRemoteArrayNoFilenameClash() {
-        $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+        $copy = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFolder = $this->createRemoteSourceFolder("foo");
         $sourceFile = [$this->createRemoteSourceFile("blah.txt", "blah1"), $this->createRemoteSourceFile("foo/blah.txt", "blah2")];
         $destFolder = $this->createRemoteDestFolder("foo");
@@ -341,34 +341,34 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
 
     public function testSourceNotResource() {
         $this->setExpectedException('InvalidArgumentException', 'Source must be null or a resource.');
-        new Copy("asdf", null);
+        new Copier("asdf", null);
     }
 
     public function testDestNotResource() {
         $this->setExpectedException('InvalidArgumentException', 'Destination must be null or a resource.');
-        new Copy(null, "asdf");
+        new Copier(null, "asdf");
     }
 
     public function testRemoteToRemoteNoLocalTmp() {
         $this->setExpectedException('InvalidArgumentException', 'Must provide a localTmp, if both source and destination are remote.');
-        new Copy($this->sourceSsh, $this->destSsh);
+        new Copier($this->sourceSsh, $this->destSsh);
     }
 
     public function testSourceArrayNoDestArray() {
         $this->setExpectedException('InvalidArgumentException', 'Destination must be an array if source is an array.');
-        $copy = new Copy();
+        $copy = new Copier();
         $copy->copy(["blah.txt"], "empty.txt");
     }
 
     public function testDestArrayNoSourceArray() {
         $this->setExpectedException('InvalidArgumentException', 'Source must be an array if destination is an array.');
-        $copy = new Copy();
+        $copy = new Copier();
         $copy->copy("empty.txt", ["blah.txt"]);
     }
 
     public function testSourceDestArraysNoSameSize() {
         $this->setExpectedException('InvalidArgumentException', 'Length of source and destination arrays must be the same.');
-        $copy = new Copy();
+        $copy = new Copier();
         $copy->copy(["foo1.txt", "foo2.txt"], ["blah1.txt"]);
     }
 }
