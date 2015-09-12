@@ -116,7 +116,7 @@ class Copy {
 
     private function copyRemoteToRemote($sourcePath, $destPath) {
         // Generate the temporary location for the file
-        $tempFilename = $this->getLocalTmp() . "/" . basename($sourcePath);
+        $tempFilename = $this->generateUniqueLocalTempFilename();
 
         // Copy the source file to tmp local
         if( !$this->copyRemoteToLocal($sourcePath, $tempFilename) ) return false;
@@ -133,6 +133,26 @@ class Copy {
 
         // done!
         return true;
+    }
+
+    private function generateUniqueLocalTempFilename() {
+        do {
+            $filename = $this->generateRandomString();
+            $filePath = $this->getLocalTmp() . "/" . $filename;
+        }
+        while(file_exists($filePath));
+
+        return $filePath;
+    }
+
+    private function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
 
     private function callCopyArrayOrString($copyMethod, $sourcePath, $destPath) {

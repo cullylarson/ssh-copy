@@ -44,12 +44,12 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         $this->destSsh = $destSsh;
     }
 
-    private function createRemoteSourceFile($name) {
+    private function createRemoteSourceFile($name, $contents="") {
         $command = new Ssh\Command($this->sourceSsh);
 
         $filePath = $this->getSourcePath($name);
 
-        $command->exec("touch " . escapeshellarg($filePath));
+        $command->exec("echo -n " . escapeshellarg($contents) . " >" . escapeshellarg($filePath));
 
         if($command->failure()) {
             $this->markTestSkipped("Could not create remote source file.");
@@ -58,17 +58,36 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         return $filePath;
     }
 
+    private function createRemoteSourceFolder($name) {
+        $command = new Ssh\Command($this->sourceSsh);
+
+        $folderPath = $this->getSourcePath($name);
+
+        $command->exec("mkdir " . escapeshellarg($folderPath));
+
+        if($command->failure()) {
+            $this->markTestSkipped("Could not create remote source folder.");
+        }
+
+        return $folderPath;
+    }
+
+    private function removeRemoteSourceFolder($folderPath) {
+        $command = new Ssh\Command($this->sourceSsh);
+        $command->exec("rmdir " . escapeshellarg($folderPath));
+    }
+
     private function removeRemoteSourceFile($filePath) {
         $command = new Ssh\Command($this->sourceSsh);
         $command->exec("rm " . escapeshellarg($filePath));
     }
 
-    private function createRemoteDestFile($name) {
+    private function createRemoteDestFile($name, $contents="") {
         $command = new Ssh\Command($this->destSsh);
 
         $filePath = $this->getDestPath($name);
 
-        $command->exec("touch " . escapeshellarg($filePath));
+        $command->exec("echo -n " . escapeshellarg($contents) . " >" . escapeshellarg($filePath));
 
         if($command->failure()) {
             $this->markTestSkipped("Could not create remote dest file.");
@@ -77,15 +96,34 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         return $filePath;
     }
 
+    private function createRemoteDestFolder($name) {
+        $command = new Ssh\Command($this->destSsh);
+
+        $folderPath = $this->getDestPath($name);
+
+        $command->exec("mkdir " . escapeshellarg($folderPath));
+
+        if($command->failure()) {
+            $this->markTestSkipped("Could not create remote dest folder.");
+        }
+
+        return $folderPath;
+    }
+
+    private function removeRemoteDestFolder($folderPath) {
+        $command = new Ssh\Command($this->destSsh);
+        $command->exec("rmdir " . escapeshellarg($folderPath));
+    }
+
     private function removeRemoteDestFile($filePath) {
         $command = new Ssh\Command($this->destSsh);
         $command->exec("rm " . escapeshellarg($filePath));
     }
 
-    private function createLocalFile($name) {
+    private function createLocalFile($name, $contents="") {
         $command = new Local\Command();
         $filePath = $this->getLocalPath($name);
-        $command->exec("touch " . escapeshellarg($filePath));
+        $command->exec("echo -n " . escapeshellarg($contents) . " >" . escapeshellarg($filePath));
 
         if($command->failure()) {
             $this->markTestSkipped("Could not create local file.");
@@ -94,25 +132,34 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         return $filePath;
     }
 
-    private function assertLocalFileExists($filePath) {
+    private function assertLocalFileExists($filePath, $contents=null) {
         $command = new Local\Command();
-        $command->exec("ls " . escapeshellarg($filePath));
-
+        $command->exec("cat " . escapeshellarg($filePath));
         $this->assertTrue($command->success());
+
+        if($contents !== null) {
+            $this->assertEquals($command->getOutput(), $contents);
+        }
     }
 
-    private function assertSourceFileExists($filePath) {
+    private function assertSourceFileExists($filePath, $contents=null) {
         $command = new Ssh\Command($this->sourceSsh);
-        $command->exec("ls " . escapeshellarg($filePath));
-
+        $command->exec("cat " . escapeshellarg($filePath));
         $this->assertTrue($command->success());
+
+        if($contents !== null) {
+            $this->assertEquals($command->getOutput(), $contents);
+        }
     }
 
-    private function assertDestFileExists($filePath) {
+    private function assertDestFileExists($filePath, $contents=null) {
         $command = new Ssh\Command($this->sourceSsh);
-        $command->exec("ls " . escapeshellarg($filePath));
-
+        $command->exec("cat " . escapeshellarg($filePath));
         $this->assertTrue($command->success());
+
+        if($contents !== null) {
+            $this->assertEquals($command->getOutput(), $contents);
+        }
     }
 
     private function removeLocalFile($filePath) {
@@ -120,22 +167,22 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         $command->exec("rm " . escapeshellarg($filePath));
     }
 
-    private function getLocalPath($otherPath) {
-        $name = basename($otherPath);
+    private function getLocalPath($name) {
+        $path = getenv("LOCAL_TMP");
 
-        return getenv("LOCAL_TMP") . "/{$name}";
+        return "{$path}/{$name}";
     }
 
-    private function getSourcePath($otherPath) {
-        $name = basename($otherPath);
+    private function getSourcePath($name) {
+        $path = getenv("SOURCE_TMP");
 
-        return getenv("SOURCE_TMP") . "/{$name}";
+        return "{$path}/{$name}";
     }
 
-    private function getDestPath($otherPath) {
-        $name = basename($otherPath);
+    private function getDestPath($name) {
+        $path = getenv("DEST_TMP");
 
-        return getenv("DEST_TMP") . "/{$name}";
+        return "{$path}/{$name}";
     }
 
     public function testLocalToLocal() {
@@ -156,7 +203,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testLocalToRemote() {
         $copy = new Copy(null, $this->destSsh);
         $localFile = $this->createLocalFile("blah.txt");
-        $destFile = $this->getDestPath($localFile);
+        $destFile = $this->getDestPath(basename($localFile));
 
         $success = $copy->copy($localFile, $destFile);
 
@@ -171,7 +218,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testRemoteToLocal() {
         $copy = new Copy($this->sourceSsh, null);
         $sourceFile = $this->createRemoteSourceFile("blah.txt");
-        $localFile = $this->getLocalPath($sourceFile);
+        $localFile = $this->getLocalPath(basename($sourceFile));
 
         $success = $copy->copy($sourceFile, $localFile);
 
@@ -186,7 +233,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testRemoteToRemote() {
         $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFile = $this->createRemoteSourceFile("blah.txt");
-        $destFile = $this->getDestPath($sourceFile);
+        $destFile = $this->getDestPath(basename($sourceFile));
 
         $success = $copy->copy($sourceFile, $destFile);
 
@@ -219,7 +266,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testLocalToRemoteArray() {
         $copy = new Copy(null, $this->destSsh);
         $localFile = [ $this->createLocalFile("blah.txt"), $this->createLocalFile("blah2.txt") ];
-        $destFile = [ $this->getDestPath($localFile[0]), $this->getDestPath($localFile[1]) ];
+        $destFile = [ $this->getDestPath(basename($localFile[0])), $this->getDestPath(basename($localFile[1])) ];
 
         $success = $copy->copy($localFile, $destFile);
 
@@ -237,7 +284,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testRemoteToLocalArray() {
         $copy = new Copy($this->sourceSsh, null);
         $sourceFile = [$this->createRemoteSourceFile("blah.txt"), $this->createRemoteSourceFile("blah2.txt")];
-        $localFile = [$this->getLocalPath($sourceFile[0]), $this->getLocalPath($sourceFile[1])];
+        $localFile = [$this->getLocalPath(basename($sourceFile[0])), $this->getLocalPath(basename($sourceFile[1]))];
 
         $success = $copy->copy($sourceFile, $localFile);
 
@@ -255,7 +302,7 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
     public function testRemoteToRemoteArray() {
         $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
         $sourceFile = [$this->createRemoteSourceFile("blah.txt"), $this->createRemoteSourceFile("blah2.txt")];
-        $destFile = [$this->getDestPath($sourceFile[0]), $this->getDestPath($sourceFile[1])];
+        $destFile = [$this->getDestPath(basename($sourceFile[0])), $this->getDestPath(basename($sourceFile[1]))];
 
         $success = $copy->copy($sourceFile, $destFile);
 
@@ -266,6 +313,28 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         $this->removeRemoteSourceFile($sourceFile[1]);
         $this->removeRemoteDestFile($destFile[0]);
         $this->removeRemoteDestFile($destFile[1]);
+
+        $this->assertTrue($success);
+    }
+
+    public function testRemoteToRemoteArrayNoFilenameClash() {
+        $copy = new Copy($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+        $sourceFolder = $this->createRemoteSourceFolder("foo");
+        $sourceFile = [$this->createRemoteSourceFile("blah.txt", "blah1"), $this->createRemoteSourceFile("foo/blah.txt", "blah2")];
+        $destFolder = $this->createRemoteDestFolder("foo");
+        $destFile = [$this->getDestPath("blah.txt"), $this->getDestPath("foo/blah.txt")];
+
+        $success = $copy->copy($sourceFile, $destFile);
+
+        $this->assertDestFileExists($destFile[0], "blah1");
+        $this->assertDestFileExists($destFile[1], "blah2");
+
+        $this->removeRemoteSourceFile($sourceFile[0]);
+        $this->removeRemoteSourceFile($sourceFile[1]);
+        $this->removeRemoteDestFile($destFile[0]);
+        $this->removeRemoteDestFile($destFile[1]);
+        $this->removeRemoteSourceFolder($sourceFolder);
+        $this->removeRemoteDestFolder($destFolder);
 
         $this->assertTrue($success);
     }
