@@ -142,6 +142,12 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
+    private function assertLocalFileDoesntExist($filePath) {
+        $command = new Local\Command();
+        $command->exec("cat " . escapeshellarg($filePath));
+        $this->assertFalse($command->success());
+    }
+
     private function assertSourceFileExists($filePath, $contents=null) {
         $command = new Ssh\Command($this->sourceSsh);
         $command->exec("cat " . escapeshellarg($filePath));
@@ -152,6 +158,12 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
+    private function assertSourceFileDoesntExist($filePath) {
+        $command = new Ssh\Command($this->sourceSsh);
+        $command->exec("cat " . escapeshellarg($filePath));
+        $this->assertFalse($command->success());
+    }
+
     private function assertDestFileExists($filePath, $contents=null) {
         $command = new Ssh\Command($this->sourceSsh);
         $command->exec("cat " . escapeshellarg($filePath));
@@ -160,6 +172,12 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         if($contents !== null) {
             $this->assertEquals($command->getOutput(), $contents);
         }
+    }
+
+    private function assertDestFileDoesntExist($filePath) {
+        $command = new Ssh\Command($this->sourceSsh);
+        $command->exec("cat " . escapeshellarg($filePath));
+        $this->assertFalse($command->success());
     }
 
     private function removeLocalFile($filePath) {
@@ -388,5 +406,56 @@ class CopyTest extends \PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException', 'Length of source and destination arrays must be the same.');
         $copier = new Copier();
         $copier->copy(["foo1.txt", "foo2.txt"], ["blah1.txt"]);
+    }
+
+    public function testLocalToLocalFail() {
+        $copier = new Copier();
+        $localSource = $this->getLocalPath("hopefully/doesnt/exist/here.source");
+        $localDest = $this->getLocalPath("hopefully/doesnt/exist/here.source");
+
+        // if the files don't exist, the copy should fail
+        $success = $copier->copy($localSource, $localDest);
+
+        $this->assertLocalFileDoesntExist($localDest);
+        $this->assertFalse($success);
+    }
+
+    public function testRemoteToRemoteFail() {
+        $copier = new Copier($this->sourceSsh, $this->destSsh, getenv("LOCAL_TMP"));
+
+        $sourceFile = $this->createRemoteSourceFile("blah.txt");
+        $destFile = $this->getDestPath("please/let/this/file/not/exist");
+
+        $success = $copier->copyAssoc([$sourceFile => $destFile]);
+
+        $this->assertDestFileDoesntExist($destFile);
+        $this->removeRemoteSourceFile($sourceFile);
+
+        $this->assertFalse($success);
+    }
+
+    public function testRemoteToLocalFail() {
+        $copier = new Copier($this->sourceSsh, null);
+        $sourceFile = [$this->getSourcePath("hopefully/doesnt/exist/blah.txt"), $this->getSourcePath("hopefully/doesnt/exist/blah2.txt")];
+        $localFile = [$this->getLocalPath(basename($sourceFile[0])), $this->getLocalPath(basename($sourceFile[1]))];
+
+        $success = $copier->copy($sourceFile, $localFile);
+
+        $this->assertLocalFileDoesntExist($localFile[0]);
+        $this->assertLocalFileDoesntExist($localFile[1]);
+
+        $this->assertFalse($success);
+    }
+
+    public function testLocalToRemoteFail() {
+        $copier = new Copier(null, $this->destSsh);
+        $localFile = $this->getLocalPath("hopefully/not/here/blah.txt");
+        $destFile = $this->getDestPath(basename($localFile));
+
+        $success = $copier->copy($localFile, $destFile);
+
+        $this->assertDestFileDoesntExist($destFile);
+
+        $this->assertFalse($success);
     }
 }
