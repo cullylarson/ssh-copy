@@ -51,7 +51,7 @@ Maybe something for a future release.
 
 The `Cully\Ssh\Copier::copyAssoc` function is similar to `copy`, except it takes one argument:
 
-1. **$sourceAndDest** _(array)_ _(required)_ An associative array wherekKeys are source file paths,
+1. **$sourceAndDest** _(array)_ _(required)_ An associative array where keys are source file paths,
 and values are destination file paths.
 
 **Returns:** _boolean_ True on success, false on fail.
