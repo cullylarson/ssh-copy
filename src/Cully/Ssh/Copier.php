@@ -81,25 +81,29 @@ class Copier {
             }
         }
 
+        $copyFunctionName = null;
+
         // source is local, destination is remote
         if( $this->sourceIsLocal() && $this->destIsRemote() ) {
-            return $this->callCopyArrayOrString("copyLocalToRemote", $sourceFilepath, $destFilepath);
+            $copyFunctionName = "copyLocalToRemote";
         }
         // source is local, destination is local
         else if( $this->sourceIsLocal() && $this->destIsLocal() ) {
-            return $this->callCopyArrayOrString("copyLocalToLocal", $sourceFilepath, $destFilepath);
+            $copyFunctionName = "copyLocalToLocal";
         }
         // source is remote, destination is local
         else if( $this->sourceIsRemote() && $this->destIsLocal() ) {
-            return $this->callCopyArrayOrString("copyRemoteToLocal", $sourceFilepath, $destFilepath);
+            $copyFunctionName = "copyRemoteToLocal";
         }
         // source is remote, destination is remote
         else if( $this->sourceIsRemote() && $this->destIsRemote() ) {
-            return $this->callCopyArrayOrString("copyRemoteToRemote", $sourceFilepath, $destFilepath);
+            $copyFunctionName = "copyRemoteToRemote";
         }
         else {
             throw new \UnexpectedValueException("Copy is of unknown type.");
         }
+
+        return $this->callCopyArrayOrString($copyFunctionName, $sourceFilepath, $destFilepath);
     }
 
     /**
