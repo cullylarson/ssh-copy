@@ -107,7 +107,7 @@ class Copier {
     }
 
     /**
-     * Similar to copy, except it takes on parameter, an associative array.
+     * Similar to {@link copy()}, except it takes one parameter, an associative array.
      *
      * @param string|array    $sourceAndDest     Keys are source file paths, values are destination file paths
      *
@@ -154,6 +154,15 @@ class Copier {
         return true;
     }
 
+    /**
+     * Generates a unique filename in the temp folder. This is used so that
+     * files with the same name (i.e. if they were in different folders on
+     * the source machine) don't globber each other.
+     *
+     * NOTE: Doesn't actually create the file.
+     *
+     * @return string
+     */
     private function generateUniqueLocalTempFilename() {
         do {
             $filename = $this->generateRandomString();
@@ -174,6 +183,18 @@ class Copier {
         return $randomString;
     }
 
+    /**
+     * Handles the case of whether the source/dest params are arrays or strings,
+     * and calls the appropriate copy method to perform the copies.  Basically
+     * I just put all the boilerplate code in here so the copy functions would
+     * be clean.
+     *
+     * @param string $copyMethod   The name of the copy function to use
+     * @param string|array $sourcePath
+     * @param string|array $destPath
+     *
+     * @return bool
+     */
     private function callCopyArrayOrString($copyMethod, $sourcePath, $destPath) {
         // arrays
         if( is_array($sourcePath) ) {
