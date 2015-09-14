@@ -92,6 +92,15 @@ $copier->copy("path/to/source", "path/to/dest");
 $copier = new Cully\Ssh\Copier(null, $destSsh);
 $copier->copy("path/to/source/on/local", "path/to/dest/on/remote");
 ```
+
+### Copy / Remote to Local
+
+```
+<?php
+
+$copier = new Cully\Ssh\Copier($sourceSsh, null);
+$copier->copy("path/to/source/on/remote", "path/to/dest/on/local");
+```
     
 ### Copy / Remote to Remote
 
