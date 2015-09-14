@@ -33,12 +33,12 @@ the files locally.
 The `Cully\Ssh\Copier::copy` function takes two arguments:
 
 1. **$sourceFilepath** _(string|array)_ _(required)_ The path to the file that you want to copy
-from the source machine.  Instead of passing a single paths, you can pass an array of paths to
+from the source machine.  Instead of passing a single path, you can pass an array of paths to
 files you want to copy.  If an array is provided, the **$destFilepath** parameter must also
 be an array of the same length.
 
 1. **$destFilepath** _(string|array)_ _(required)_ The path on the destination machine, where you
-want the file copied.  Instead of passing a single paths, you can pass an array of paths to
+want the file copied.  Instead of passing a single path, you can pass an array of paths to
 files you want to copy.  If an array is provided, the **$sourceFilepath** parameter must also
 be an array of the same length.
 
